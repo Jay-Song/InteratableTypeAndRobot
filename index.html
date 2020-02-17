@@ -62,11 +62,11 @@
        new_color = value;
      });
 
-     var current_size = 12;// = "#FF0000";// = 0xFF0000;
-     var new_size = 12;//"#FF0000";// = 0xFF0000;
-      gui.add(params, "fontSize", 12, 150, 1).onChange(function (value) {
-        new_size = value;
-      });
+    var current_size = 12;// = "#FF0000";// = 0xFF0000;
+    var new_size = 12;//"#FF0000";// = 0xFF0000;
+     gui.add(params, "fontSize", 12, 150, 1).onChange(function (value) {
+      new_size = value;
+    });
 
 
     //CAMERA
@@ -90,11 +90,12 @@
     //OBJECT
     var loader = new THREE.FontLoader();
     let font = loader.parse(fontJSON);
+    var is_wrie_frame = true;
     var geometry = new THREE.TextGeometry(current_string,
     {
       font: font, size: current_size, height: 10, material: 0, bevelThickness: 1, extrudeMaterial: 1
     });  //TextGeometry(text, parameters)
-    var material = new THREE.MeshLambertMaterial({color: current_color, wireframe: true});
+    var material = new THREE.MeshLambertMaterial({color: current_color, wireframe: is_wrie_frame});
     var mesh = new THREE.Mesh(geometry, material);
     mesh.position.z = -100;
 
@@ -148,7 +149,7 @@
           font: font, size: current_size, height: 10, material: 0, bevelThickness: 1, extrudeMaterial: 1
         });
 
-        material = new THREE.MeshLambertMaterial({color: current_color});
+        material = new THREE.MeshLambertMaterial({color: current_color, wireframe: is_wrie_frame});
 
         mesh = new THREE.Mesh(geometry, material);
         mesh.position.z = -100;
