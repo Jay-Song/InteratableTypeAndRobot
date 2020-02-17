@@ -47,7 +47,8 @@
     const params = {
     textField: "Type in whatever",
     color: 0xFF0000,
-    fontSize: 12
+    fontSize: 12,
+    fontThickness: 10
     }
     const gui = new dat.GUI();
     var current_string = "hello"
@@ -58,16 +59,47 @@
     });
     var current_color = 0xFF0000;// = "#FF0000";// = 0xFF0000;
     var new_color = 0xFF0000;//"#FF0000";// = 0xFF0000;
-     gui.addColor(params, "color").onFinishChange(function (value) {
-       new_color = value;
-     });
+    gui.addColor(params, "color").onFinishChange(function (value) {
+      new_color = value;
+    });
 
-    var current_size = 12;// = "#FF0000";// = 0xFF0000;
+    //font size
+    var current_size = 12;
     var new_size = 12;//"#FF0000";// = 0xFF0000;
-     gui.add(params, "fontSize", 12, 150, 1).onChange(function (value) {
+    gui.add(params, "fontSize", 12, 150, 1).onChange(function (value) {
       new_size = value;
     });
 
+    //height
+    var current_height = 10;
+    var new_height = 10;
+    gui.add(params, "fontThickness", 10, 100, 1).onChange(function (value1) {
+      new_height = value1;
+    });
+    
+    var wirefrme_display_onoff = false;
+    var scale_factor = 1;
+    var max_scale_factor = 50;
+    var incremental_unit_scale_factor = 0.5;
+    var incremental_time_for_scale = 2;
+    var incremental_time_count = 0;
+    var wireframe_btn_obj = { wireframe:function(){ 
+      if(wirefrme_display_onoff == true)
+      {
+        incremental_time_count = 0;
+        scale_factor = 1;
+        incremental_unit_scale_factor = 0.5;
+        wirefrme_display_onoff = false;
+        console.log("W Off"); 
+      }
+      else
+      {
+        wirefrme_display_onoff = true;
+        console.log("W On");
+      }
+    }
+    };
+    gui.add(wireframe_btn_obj,'wireframe');
 
     //CAMERA
     camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.01, 7000);
@@ -90,16 +122,27 @@
     //OBJECT
     var loader = new THREE.FontLoader();
     let font = loader.parse(fontJSON);
-    var is_wire_frame = true;
+    var is_wire_frame = false;
+
     var geometry = new THREE.TextGeometry(current_string,
     {
-      font: font, size: current_size, height: 10, material: 0, bevelThickness: 1, extrudeMaterial: 1
+      font: font, size: current_size, height: 10, material: 0, bevelEnabled: true, bevelThickness: 0, bevelSize:0,  extrudeMaterial: 1, curveSegments: 10
     });  //TextGeometry(text, parameters)
+    geometry.center();
     var material = new THREE.MeshLambertMaterial({color: current_color, wireframe: is_wire_frame});
     var mesh = new THREE.Mesh(geometry, material);
     mesh.position.z = -100;
 
     scene.add(mesh);
+
+
+    // wire frame
+    var geo = new THREE.EdgesGeometry( geometry );
+    var mat = new THREE.LineBasicMaterial( { color: 0xffffff, linewidth: 4 } );
+    var wireframe = new THREE.LineSegments( geo, mat );
+    wireframe.scale.set(scale_factor,scale_factor,scale_factor);
+    wireframe.renderOrder = 1; // make sure wireframes are rendered 2nd
+
 
     var delta = 0;
     camera.position.z = 5;
@@ -125,11 +168,12 @@
       requestAnimationFrame(render);
       //console.log(new_color);
       if ((current_string != new_string) || (current_color != new_color)
-          || (current_size != new_size))
+          || (current_size != new_size) || (current_height != new_height) )
       {
         current_string = new_string;
         current_color = new_color;
         current_size = new_size;
+        current_height = new_height;
         delete geometry;
         delete mesh;
         delete material;
@@ -146,15 +190,60 @@
 
         geometry = new THREE.TextGeometry(current_string,
         {
-          font: font, size: current_size, height: 10, material: 0, bevelThickness: 1, extrudeMaterial: 1
+          font: font, size: current_size, height: current_height, material: 0, bevelThickness: 1, extrudeMaterial: 1
         });
 
+        geometry.center();
         material = new THREE.MeshLambertMaterial({color: current_color, wireframe: is_wire_frame});
 
         mesh = new THREE.Mesh(geometry, material);
         mesh.position.z = -100;
-
         scene.add(mesh);
+
+        delete geo;
+        delete mat;
+        delete wireframe;
+        geo = new THREE.EdgesGeometry( geometry );
+        mat = new THREE.LineBasicMaterial( { color: 0xffffff, linewidth: 4 } );
+        wireframe = new THREE.LineSegments( geo, mat );
+      }
+
+
+      
+      if(wirefrme_display_onoff == true)
+      {
+        if(incremental_time_count == 0)
+        {
+          wireframe.scale.set(scale_factor,scale_factor,scale_factor);
+          mesh.add(wireframe);
+        }
+        
+        incremental_time_count++;
+
+        if(incremental_time_count == incremental_time_for_scale)
+        {
+          mesh.remove(wireframe);
+          scale_factor += incremental_unit_scale_factor;
+          incremental_time_count = 0;
+          if(scale_factor > max_scale_factor)
+          {
+            scale_factor = max_scale_factor;
+            incremental_unit_scale_factor *= -1.0;
+            wireframe.scale.set(scale_factor,scale_factor,scale_factor);
+            mesh.add(wireframe);
+          }
+          else if(scale_factor < 1.0)
+          {
+            scale_factor = 1.0;
+            incremental_unit_scale_factor *= -1.0;
+            wireframe.scale.set(scale_factor,scale_factor,scale_factor);
+            mesh.add(wireframe);
+          }
+        }
+      }
+      else
+      {
+        mesh.remove(wireframe);
       }
 
     }
