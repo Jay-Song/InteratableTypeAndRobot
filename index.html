@@ -90,12 +90,12 @@
     //OBJECT
     var loader = new THREE.FontLoader();
     let font = loader.parse(fontJSON);
-    var is_wrie_frame = true;
+    var is_wire_frame = true;
     var geometry = new THREE.TextGeometry(current_string,
     {
       font: font, size: current_size, height: 10, material: 0, bevelThickness: 1, extrudeMaterial: 1
     });  //TextGeometry(text, parameters)
-    var material = new THREE.MeshLambertMaterial({color: current_color, wireframe: is_wrie_frame});
+    var material = new THREE.MeshLambertMaterial({color: current_color, wireframe: is_wire_frame});
     var mesh = new THREE.Mesh(geometry, material);
     mesh.position.z = -100;
 
@@ -149,7 +149,7 @@
           font: font, size: current_size, height: 10, material: 0, bevelThickness: 1, extrudeMaterial: 1
         });
 
-        material = new THREE.MeshLambertMaterial({color: current_color, wireframe: is_wrie_frame});
+        material = new THREE.MeshLambertMaterial({color: current_color, wireframe: is_wire_frame});
 
         mesh = new THREE.Mesh(geometry, material);
         mesh.position.z = -100;
