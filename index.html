@@ -3,10 +3,10 @@
     <title>threejs - geometry</title>
 
     <style>
-    	body{
-    		margin: 0;
-    		overflow: hidden;
-    	}
+      body{
+        margin: 0;
+        overflow: hidden;
+      }
     </style>
 </head>
 <body>
@@ -18,11 +18,11 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/dat-gui/0.7.6/dat.gui.min.js"></script>
 <script src="js/type.js"></script>
 
-    <script>
+<script>
     var renderer,
-    	scene,
-    	camera,
-    	myCanvas = document.getElementById('myCanvas');
+      scene,
+      camera,
+      myCanvas = document.getElementById('myCanvas');
 
     //var textBox;
 
@@ -45,13 +45,29 @@
 
     //USER GUI
     const params = {
-    textField: "Type in whatever"
+    textField: "Type in whatever",
+    color: 0xFF0000,
+    fontSize: 12
     }
     const gui = new dat.GUI();
-    let new_string = "hello"
+    var current_string = "hello"
+    var new_string = "hello"
     gui.add(params, "textField").onFinishChange(function (value) {
     //Do something with the new value
+    new_string = value;
     });
+    var current_color = 0xFF0000;// = "#FF0000";// = 0xFF0000;
+    var new_color = 0xFF0000;//"#FF0000";// = 0xFF0000;
+     gui.addColor(params, "color").onFinishChange(function (value) {
+       new_color = value;
+     });
+
+     var current_size = 12;// = "#FF0000";// = 0xFF0000;
+     var new_size = 12;//"#FF0000";// = 0xFF0000;
+      gui.add(params, "fontSize", 12, 150, 1).onChange(function (value) {
+        new_size = value;
+      });
+
 
     //CAMERA
     camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.01, 7000);
@@ -61,38 +77,39 @@
     scene.add( camera );
 
     //LIGHTS
-    var ambientLight = new THREE.AmbientLight ( 0xffffff, 0.5 )
-    scene.add( ambientLight )
+    var ambientLight = new THREE.AmbientLight ( 0xffffff, 0.5 );
+    scene.add( ambientLight );
 
     var pointLight = new THREE.PointLight( 0xffffff, 1 );
     pointLight.position.set( 25, 50, 25 );
     scene.add( pointLight );
 
     //CONTROLS
-		controls = new THREE.OrbitControls(camera, renderer.domElement);
+    controls = new THREE.OrbitControls(camera, renderer.domElement);
 
-		//OBJECT
+    //OBJECT
     var loader = new THREE.FontLoader();
     let font = loader.parse(fontJSON);
-    var geometry = new THREE.TextGeometry(new_string,
-		{
-			font: font, size: 12, height: 10, material: 0, bevelThickness: 1, extrudeMaterial: 1
-		});  //TextGeometry(text, parameters)
-    var material = new THREE.MeshLambertMaterial({color: 0xFF0000});
+    var geometry = new THREE.TextGeometry(current_string,
+    {
+      font: font, size: current_size, height: 10, material: 0, bevelThickness: 1, extrudeMaterial: 1
+    });  //TextGeometry(text, parameters)
+    var material = new THREE.MeshLambertMaterial({color: current_color, wireframe: true});
     var mesh = new THREE.Mesh(geometry, material);
     mesh.position.z = -100;
 
     scene.add(mesh);
 
+    var delta = 0;
+    camera.position.z = 5;
+
     //RENDER LOOP
     render();
 
-    var delta = 0;
-    camera.position.z = 5;
     function render() {
       //ROTATION
-    	//mesh.rotation.x += 0.01;
-    	//mesh.rotation.y += 0.01;
+      //mesh.rotation.x += 0.005;
+      //mesh.rotation.y += 0.005;
 
       //delta += 0.1;
       //geometry.vertices[0].x = -25 + Math.sin(delta) * 50;
@@ -102,11 +119,45 @@
       //camera.up = new THREE.Vector3(0,0,1);
       //delta = delta + delta;
       //camera.lookAt(new THREE.Vector3(0,delta,0))
-    	renderer.render(scene, camera);
+      renderer.render(scene, camera);
 
-    	requestAnimationFrame(render);
+      requestAnimationFrame(render);
+      //console.log(new_color);
+      if ((current_string != new_string) || (current_color != new_color)
+          || (current_size != new_size))
+      {
+        current_string = new_string;
+        current_color = new_color;
+        current_size = new_size;
+        delete geometry;
+        delete mesh;
+        delete material;
+
+        // remove all the children in scene
+        while(scene.children.length > 0){
+          scene.remove(scene.children[0]);
+        }
+
+        // add again children to scene
+        scene.add( camera );
+        scene.add( ambientLight );
+        scene.add( pointLight );
+
+        geometry = new THREE.TextGeometry(current_string,
+        {
+          font: font, size: current_size, height: 10, material: 0, bevelThickness: 1, extrudeMaterial: 1
+        });
+
+        material = new THREE.MeshLambertMaterial({color: current_color});
+
+        mesh = new THREE.Mesh(geometry, material);
+        mesh.position.z = -100;
+
+        scene.add(mesh);
+      }
+
     }
 
-    </script>
+  </script>
 </body>
 </html>
