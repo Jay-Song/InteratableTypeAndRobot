@@ -47,6 +47,7 @@
     const params = {
     textField: "Type in whatever",
     color: 0xFF0000,
+    //wireframe_color: 0xFF0000,
     fontSize: 12,
     fontThickness: 10
     }
@@ -63,6 +64,12 @@
       new_color = value;
     });
 
+    //var current_wire_color = 0xFF0000;// = "#FF0000";// = 0xFF0000;
+    //var new_wire_color = 0xFF0000;//"#FF0000";// = 0xFF0000;
+    //gui.addColor(params, "wireframe_color").onFinishChange(function (value) {
+    //new_wire_color = value;
+    //});
+
     //font size
     var current_size = 12;
     var new_size = 12;//"#FF0000";// = 0xFF0000;
@@ -76,21 +83,21 @@
     gui.add(params, "fontThickness", 10, 100, 1).onChange(function (value1) {
       new_height = value1;
     });
-    
+
     var wirefrme_display_onoff = false;
     var scale_factor = 1;
     var max_scale_factor = 50;
     var incremental_unit_scale_factor = 0.5;
     var incremental_time_for_scale = 2;
     var incremental_time_count = 0;
-    var wireframe_btn_obj = { wireframe:function(){ 
+    var wireframe_btn_obj = { wireframe:function(){
       if(wirefrme_display_onoff == true)
       {
         incremental_time_count = 0;
         scale_factor = 1;
         incremental_unit_scale_factor = 0.5;
         wirefrme_display_onoff = false;
-        console.log("W Off"); 
+        console.log("W Off");
       }
       else
       {
@@ -168,12 +175,14 @@
       requestAnimationFrame(render);
       //console.log(new_color);
       if ((current_string != new_string) || (current_color != new_color)
-          || (current_size != new_size) || (current_height != new_height) )
+          || (current_size != new_size) || (current_height != new_height)
+         )
       {
         current_string = new_string;
         current_color = new_color;
         current_size = new_size;
         current_height = new_height;
+        //current_wire_color = new_wire_color;
         delete geometry;
         delete mesh;
         delete material;
@@ -204,12 +213,12 @@
         delete mat;
         delete wireframe;
         geo = new THREE.EdgesGeometry( geometry );
-        mat = new THREE.LineBasicMaterial( { color: 0xffffff, linewidth: 4 } );
+        mat = new THREE.LineBasicMaterial( { color: current_color, linewidth: 100 } );
         wireframe = new THREE.LineSegments( geo, mat );
       }
 
 
-      
+
       if(wirefrme_display_onoff == true)
       {
         if(incremental_time_count == 0)
@@ -217,7 +226,7 @@
           wireframe.scale.set(scale_factor,scale_factor,scale_factor);
           mesh.add(wireframe);
         }
-        
+
         incremental_time_count++;
 
         if(incremental_time_count == incremental_time_for_scale)
