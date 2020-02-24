@@ -135,11 +135,12 @@ scene.add(mesh);
 // wireframe.renderOrder = 1; // make sure wireframes are rendered 2nd
 // scene.add(wireframe);
 
+var current_line_width = 100;
 var geoEdge = new THREE.EdgesGeometry( geometry );
 var geoLine = new THREE.LineSegmentsGeometry().fromEdgesGeometry( geoEdge );
 var matLine = new THREE.LineMaterial( {
     color: current_color,
-    linewidth: 5, // in pixels
+    linewidth: current_line_width, // in pixels
     dashed: false
 } );
 
@@ -168,7 +169,7 @@ wireframe.renderOrder = 1;
 // wireframe.scale.set( 0.01, 0.01, 0.01 );
 // scene.add( wireframe );
 
-// var resolution = new THREE.Vector2( window.innerWidth, window.innerHeight ); 
+// var resolution = new THREE.Vector2( window.innerWidth, window.innerHeight );
 // var geoLine = new MeshLine();
 // geoLine.setGeometry( geo );
 
@@ -214,7 +215,7 @@ function render() {
 
     //console.log(new_color);
     if ((current_string != new_string) || (current_color != new_color)
-        || (current_size != new_size) || (current_height != new_height)) 
+        || (current_size != new_size) || (current_height != new_height))
     {
         current_string = new_string;
         current_color = new_color;
@@ -257,7 +258,7 @@ function render() {
         geoLine = new THREE.LineSegmentsGeometry().fromEdgesGeometry(geoEdge);
         matLine = new THREE.LineMaterial({
             color: current_color,
-            linewidth: 5, // in pixels
+            linewidth: current_line_width, // in pixels
             dashed: false
         });
 
@@ -269,7 +270,7 @@ function render() {
 
 
     if (wirefrme_display_onoff == true) {
-        if (incremental_time_count == 0) { 
+        if (incremental_time_count == 0) {
             wireframe.scale.set(scale_factor, scale_factor, scale_factor);
             mesh.add(wireframe);
         }
