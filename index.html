@@ -1,262 +1,33 @@
 <html>
+
 <head>
-    <title>threejs - geometry</title>
+  <title>threejs - geometry</title>
 
-    <style>
-      body{
-        margin: 0;
-        overflow: hidden;
-      }
-    </style>
+  <style>
+    body {
+      margin: 0;
+      overflow: hidden;
+    }
+  </style>
+
 </head>
+
 <body>
-
-<canvas id="myCanvas"></canvas>
-<script src="js/three.js"></script>
-<script src="js/OrbitControls.js"</script>
-<script src="https://cdn.rawgit.com/chandlerprall/ThreeCSG/master/ThreeCSG.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/dat-gui/0.7.6/dat.gui.min.js"></script>
-<script src="js/type.js"></script>
-
-<script>
-    var renderer,
-      scene,
-      camera,
-      myCanvas = document.getElementById('myCanvas');
-
-    //var textBox;
-
-    //RENDERER
-    renderer = new THREE.WebGLRenderer({canvas: myCanvas, antialias: true});
-    renderer.setClearColor(0x000000);
-    renderer.setPixelRatio(window.devicePixelRatio);
-    renderer.setSize(window.innerWidth, window.innerHeight);
-    document.body.appendChild( renderer.domElement );
-
-    //RESIZING
-    window.addEventListener ('resize', function()
-    {
-      var width = window.innerWidth;
-      var height = window.innerHeight;
-      renderer.setSize(width, height);
-      camera.aspect = width / height;
-      camera.updateProjectionMatrix();
-    });
-
-    //USER GUI
-    const params = {
-    textField: "Type in whatever",
-    color: 0xFF0000,
-    //wireframe_color: 0xFF0000,
-    fontSize: 12,
-    fontThickness: 10
-    }
-    const gui = new dat.GUI();
-    var current_string = "hello"
-    var new_string = "hello"
-    gui.add(params, "textField").onFinishChange(function (value) {
-    //Do something with the new value
-    new_string = value;
-    });
-    var current_color = 0xFF0000;// = "#FF0000";// = 0xFF0000;
-    var new_color = 0xFF0000;//"#FF0000";// = 0xFF0000;
-    gui.addColor(params, "color").onFinishChange(function (value) {
-      new_color = value;
-    });
-
-    //var current_wire_color = 0xFF0000;// = "#FF0000";// = 0xFF0000;
-    //var new_wire_color = 0xFF0000;//"#FF0000";// = 0xFF0000;
-    //gui.addColor(params, "wireframe_color").onFinishChange(function (value) {
-    //new_wire_color = value;
-    //});
-
-    //font size
-    var current_size = 12;
-    var new_size = 12;//"#FF0000";// = 0xFF0000;
-    gui.add(params, "fontSize", 12, 150, 1).onChange(function (value) {
-      new_size = value;
-    });
-
-    //height
-    var current_height = 10;
-    var new_height = 10;
-    gui.add(params, "fontThickness", 10, 100, 1).onChange(function (value1) {
-      new_height = value1;
-    });
-
-    var wirefrme_display_onoff = false;
-    var scale_factor = 1;
-    var max_scale_factor = 50;
-    var incremental_unit_scale_factor = 0.5;
-    var incremental_time_for_scale = 2;
-    var incremental_time_count = 0;
-    var wireframe_btn_obj = { wireframe:function(){
-      if(wirefrme_display_onoff == true)
-      {
-        incremental_time_count = 0;
-        scale_factor = 1;
-        incremental_unit_scale_factor = 0.5;
-        wirefrme_display_onoff = false;
-        console.log("W Off");
-      }
-      else
-      {
-        wirefrme_display_onoff = true;
-        console.log("W On");
-      }
-    }
-    };
-    gui.add(wireframe_btn_obj,'wireframe');
-
-    //CAMERA
-    camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.01, 7000);
-
-    //SCENE
-    scene = new THREE.Scene();
-    scene.add( camera );
-
-    //LIGHTS
-    var ambientLight = new THREE.AmbientLight ( 0xffffff, 0.5 );
-    scene.add( ambientLight );
-
-    var pointLight = new THREE.PointLight( 0xffffff, 1 );
-    pointLight.position.set( 25, 50, 25 );
-    scene.add( pointLight );
-
-    //CONTROLS
-    controls = new THREE.OrbitControls(camera, renderer.domElement);
-
-    //OBJECT
-    var loader = new THREE.FontLoader();
-    let font = loader.parse(fontJSON);
-    var is_wire_frame = false;
-
-    var geometry = new THREE.TextGeometry(current_string,
-    {
-      font: font, size: current_size, height: 10, material: 0, bevelEnabled: true, bevelThickness: 0, bevelSize:0,  extrudeMaterial: 1, curveSegments: 10
-    });  //TextGeometry(text, parameters)
-    geometry.center();
-    var material = new THREE.MeshLambertMaterial({color: current_color, wireframe: is_wire_frame});
-    var mesh = new THREE.Mesh(geometry, material);
-    mesh.position.z = -100;
-
-    scene.add(mesh);
-
-
-    // wire frame
-    var geo = new THREE.EdgesGeometry( geometry );
-    var mat = new THREE.LineBasicMaterial( { color: 0xffffff, linewidth: 4 } );
-    var wireframe = new THREE.LineSegments( geo, mat );
-    wireframe.scale.set(scale_factor,scale_factor,scale_factor);
-    wireframe.renderOrder = 1; // make sure wireframes are rendered 2nd
-
-
-    var delta = 0;
-    camera.position.z = 5;
-
-    //RENDER LOOP
-    render();
-
-    function render() {
-      //ROTATION
-      mesh.rotation.x += 0.005;
-      mesh.rotation.y += 0.005;
-
-      //delta += 0.1;
-      //geometry.vertices[0].x = -25 + Math.sin(delta) * 50;
-      //geometry.verticesNeedUpdate = true;
-
-      //camera.position.set(30,0,0);
-      //camera.up = new THREE.Vector3(0,0,1);
-      //delta = delta + delta;
-      //camera.lookAt(new THREE.Vector3(0,delta,0))
-      renderer.render(scene, camera);
-
-      requestAnimationFrame(render);
-      //console.log(new_color);
-      if ((current_string != new_string) || (current_color != new_color)
-          || (current_size != new_size) || (current_height != new_height)
-         )
-      {
-        current_string = new_string;
-        current_color = new_color;
-        current_size = new_size;
-        current_height = new_height;
-        //current_wire_color = new_wire_color;
-        delete geometry;
-        delete mesh;
-        delete material;
-
-        // remove all the children in scene
-        while(scene.children.length > 0){
-          scene.remove(scene.children[0]);
-        }
-
-        // add again children to scene
-        scene.add( camera );
-        scene.add( ambientLight );
-        scene.add( pointLight );
-
-        geometry = new THREE.TextGeometry(current_string,
-        {
-          font: font, size: current_size, height: current_height, material: 0, bevelThickness: 1, extrudeMaterial: 1
-        });
-
-        geometry.center();
-        material = new THREE.MeshLambertMaterial({color: current_color, wireframe: is_wire_frame});
-
-        mesh = new THREE.Mesh(geometry, material);
-        mesh.position.z = -100;
-        scene.add(mesh);
-
-        delete geo;
-        delete mat;
-        delete wireframe;
-        geo = new THREE.EdgesGeometry( geometry );
-        mat = new THREE.LineBasicMaterial( { color: current_color, linewidth: 100 } );
-        wireframe = new THREE.LineSegments( geo, mat );
-      }
-
-
-
-      if(wirefrme_display_onoff == true)
-      {
-        if(incremental_time_count == 0)
-        {
-          wireframe.scale.set(scale_factor,scale_factor,scale_factor);
-          mesh.add(wireframe);
-        }
-
-        incremental_time_count++;
-
-        if(incremental_time_count == incremental_time_for_scale)
-        {
-          mesh.remove(wireframe);
-          scale_factor += incremental_unit_scale_factor;
-          incremental_time_count = 0;
-          if(scale_factor > max_scale_factor)
-          {
-            scale_factor = max_scale_factor;
-            incremental_unit_scale_factor *= -1.0;
-            wireframe.scale.set(scale_factor,scale_factor,scale_factor);
-            mesh.add(wireframe);
-          }
-          else if(scale_factor < 1.0)
-          {
-            scale_factor = 1.0;
-            incremental_unit_scale_factor *= -1.0;
-            wireframe.scale.set(scale_factor,scale_factor,scale_factor);
-            mesh.add(wireframe);
-          }
-        }
-      }
-      else
-      {
-        mesh.remove(wireframe);
-      }
-
-    }
-
-  </script>
+  <canvas id="myCanvas"></canvas>
+  <script src="js/three.js"></script>
+  <script src="js/OrbitControls.js"></script>
+  <script src="https://cdn.rawgit.com/chandlerprall/ThreeCSG/master/ThreeCSG.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/dat-gui/0.7.6/dat.gui.min.js"></script>
+  <script src="js/type.js"></script>
+  <script src="js/lines/LineSegments2.js"></script>
+  <script src="js/lines/Line2.js"></script>
+  <script src="js/lines/LineMaterial.js"></script>
+  <script src="js/lines/LineSegmentsGeometry.js"></script>
+  <script src="js/lines/LineGeometry.js"></script>
+  <script src="js/lines/Wireframe.js"></script>
+  <script src="js/lines/WireframeGeometry2.js"></script>
+  <script src="js/utils/GeometryUtils.js"></script>
+  <script src="jthesis.js"></script>
 </body>
+
 </html>
