@@ -43,7 +43,10 @@ gui.add(params, "textField").onFinishChange(function (value) {
     for (var mesher_idx = 0; mesher_idx < 2; mesher_idx++) {
         scene.remove(arr_type_mesher[mesher_idx].mesh);
         arr_type_mesher[mesher_idx].changeText(value);
-        scene.add(arr_type_mesher[mesher_idx].mesh);
+
+        if (params.multiple == true) {
+            scene.add(arr_type_mesher[mesher_idx].mesh);
+        }
     }
 });
 
@@ -56,7 +59,9 @@ gui.add(params, "fontSize", 12, 150, 1).onChange(function (value) {
     for (var mesher_idx = 0; mesher_idx < 2; mesher_idx++) {
         scene.remove(arr_type_mesher[mesher_idx].mesh);
         arr_type_mesher[mesher_idx].changeTextSize(value);
-        scene.add(arr_type_mesher[mesher_idx].mesh);
+        if (params.multiple == true) {
+            scene.add(arr_type_mesher[mesher_idx].mesh);
+        }
     }
 });
 
@@ -69,7 +74,9 @@ gui.add(params, "fontThickness", 10, 100, 1).onChange(function (value) {
     for (var mesher_idx = 0; mesher_idx < 2; mesher_idx++) {
         scene.remove(arr_type_mesher[mesher_idx].mesh);
         arr_type_mesher[mesher_idx].changeThickness(value);
-        scene.add(arr_type_mesher[mesher_idx].mesh);
+        if (params.multiple == true) {
+            scene.add(arr_type_mesher[mesher_idx].mesh);
+        }
     }
 });
 
@@ -88,10 +95,11 @@ gui.addColor(params, "color").onFinishChange(function (value) {
 gui.add(params, "wireframe").onChange(function (value){ 
     type_mesher.setWireFrameVisibility(value);
 
-    for (var mesher_idx = 0; mesher_idx < 2; mesher_idx++) {
-        arr_type_mesher[mesher_idx].setWireFrameVisibility(value);
+    if (params.multiple == true) {
+        for (var mesher_idx = 0; mesher_idx < 2; mesher_idx++) {
+            arr_type_mesher[mesher_idx].setWireFrameVisibility(value);
+        }
     }
-
 });
 
 //GUI multiple
@@ -136,8 +144,11 @@ type_mesher = new TypeMesher(
     window.innerWidth, window.innerHeight
 );
 
+type_mesher.setRotationVelocity(0.005);
+
 //MULTIPLE OBJECT
-for(var mesher_idx = 0; mesher_idx < arr_type_mesher.length; mesher_idx++)
+var num_of_mesh = 2;
+for(var mesher_idx = 0; mesher_idx < num_of_mesh; mesher_idx++)
 {
     arr_type_mesher[mesher_idx] = new TypeMesher(
         "hello", font, 12, 10,
@@ -149,8 +160,6 @@ for(var mesher_idx = 0; mesher_idx < arr_type_mesher.length; mesher_idx++)
 
 arr_type_mesher[0].mesh.position.x = 50;
 arr_type_mesher[1].mesh.position.x = -50;
-
-//type_mesher.setWireFrameVisibility(false);
 
 //SCENE
 scene = new THREE.Scene();

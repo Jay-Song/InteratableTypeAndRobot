@@ -19,7 +19,7 @@ function TypeMesher(geo_string, geo_font, geo_size, geo_thickness, mesh_color, w
     this.window_inner_width = window_inner_width;
     this.window_inner_height = window_inner_height;
 
-    this.rotation_speed = 0.005;
+    this.rotation_velocity = 0.005;
     this.position = new THREE.Vector3();
     this.rotation = new THREE.Euler();
 
@@ -180,10 +180,15 @@ TypeMesher.prototype.updateWireframeScale = function ()
 
 TypeMesher.prototype.updateMesh = function(window_inner_width, window_inner_height)
 {
-    this.mesh.rotation.x += this.rotation_speed;
-    this.mesh.rotation.y += this.rotation_speed;
+    this.mesh.rotation.x += this.rotation_velocity;
+    this.mesh.rotation.y += this.rotation_velocity;
 
     this.mat_wire.resolution.set(window_inner_width, window_inner_height);
+}
+
+TypeMesher.prototype.setRotationVelocity = function(velocity)
+{
+    this.rotation_velocity = velocity;
 }
 //Animal.prototype.bark = function(cry) {
 //    console.log(this.animal + " : " + cry);
