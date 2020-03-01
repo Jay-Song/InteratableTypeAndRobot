@@ -84,22 +84,6 @@ gui.addColor(params, "color").onFinishChange(function (value) {
     }
 });
 
-//GUI wire frame: change visibility
-// var wireframe_btn_obj = {
-//     wireframe: function () {
-//         if (type_mesher.wire_visible == true) {
-//             type_mesher.setWireFrameVisibility(false);
-//             console.log("W Off");
-//         }
-//         else {
-//             type_mesher.initializeChangingWireframeScale();
-//             type_mesher.setWireFrameVisibility(true);
-//             console.log("W On");
-//         }
-//     }
-// };
-// gui.add(wireframe_btn_obj, 'wireframe');
-
 //GUI wireframe
 gui.add(params, "wireframe").onChange(function (value){ 
     type_mesher.setWireFrameVisibility(value);
@@ -129,18 +113,10 @@ camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight,
 camera.position.z = 100;
 
 
-//SCENE
-scene = new THREE.Scene();
-scene.add(camera);
-
-
 //LIGHTS
 var ambientLight = new THREE.AmbientLight(0xffffff, 0.5);
-scene.add(ambientLight);
-
 var pointLight = new THREE.PointLight(0xffffff, 1);
 pointLight.position.set(25, 50, 25);
-scene.add(pointLight);
 
 
 //CONTROLS
@@ -152,7 +128,7 @@ var loader = new THREE.FontLoader();
 var font = loader.parse(fontJSON);
 
 
-//OBJECT
+//SINGLE OBJECT
 type_mesher = new TypeMesher(
     "hello", font, 12, 10,
     0xFF0000,
@@ -160,7 +136,8 @@ type_mesher = new TypeMesher(
     window.innerWidth, window.innerHeight
 );
 
-for(var mesher_idx = 0; mesher_idx < 2; mesher_idx++)
+//MULTIPLE OBJECT
+for(var mesher_idx = 0; mesher_idx < arr_type_mesher.length; mesher_idx++)
 {
     arr_type_mesher[mesher_idx] = new TypeMesher(
         "hello", font, 12, 10,
@@ -173,7 +150,13 @@ for(var mesher_idx = 0; mesher_idx < 2; mesher_idx++)
 arr_type_mesher[0].mesh.position.x = 50;
 arr_type_mesher[1].mesh.position.x = -50;
 
-type_mesher.setWireFrameVisibility(false);
+//type_mesher.setWireFrameVisibility(false);
+
+//SCENE
+scene = new THREE.Scene();
+scene.add(camera);
+scene.add(ambientLight);
+scene.add(pointLight);
 scene.add(type_mesher.mesh);
 
 //RENDER LOOP
@@ -186,7 +169,7 @@ function render() {
     type_mesher.updateMesh(window.innerWidth, window.innerHeight );
     type_mesher.updateWireframeScale();
 
-    for(var mesher_idx = 0; mesher_idx < 2; mesher_idx++)
+    for(var mesher_idx = 0; mesher_idx < arr_type_mesher.length; mesher_idx++)
     {
         arr_type_mesher[mesher_idx].updateMesh(window.innerWidth, window.innerHeight );
         arr_type_mesher[mesher_idx].updateWireframeScale();
