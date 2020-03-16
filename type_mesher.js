@@ -12,6 +12,7 @@ function TypeMesher(geo_string, geo_font, geo_size, geo_thickness, mesh_color, w
     this.wire_scale_factor = 1.0;
     this.wire_visible = wire_visible;
 
+
     this.incremental_unit_scale_factor = 0.25;
     this.incremental_direction = 1.0;
     this.max_scale_factor = 50.0;
@@ -23,14 +24,35 @@ function TypeMesher(geo_string, geo_font, geo_size, geo_thickness, mesh_color, w
     this.position = new THREE.Vector3();
     this.rotation = new THREE.Euler();
 
-    // make geometry
-    this.geometry = new THREE.TextGeometry(this.geo_string,
+    this.geo_type = "normal";
+    // make normal geometry
+    this.normal_geometry = new THREE.TextGeometry(this.geo_string,
         {
             font: this.geo_font, size: this.geo_size, height: this.geo_thickness, material: 0, 
             bevelEnabled: false, bevelThickness: 0, bevelSize: 0, extrudeMaterial: 1
         });
-    this.geometry.center(); // move the geometry to center
-    
+    this.normal_geometry.center(); // move the geometry to center
+
+    // make circular geometry
+    this.circular_geometry = new THREE.Geometry();
+    var radius = 0.2*this.geo_string.length * this.geo_size;
+    var angle_increment = 2*Math.PI/this.geo_string.length;
+
+    for(var char_idx = 0; char_idx < this.geo_string.length; char_idx++) {
+        var temp_geo = new THREE.TextGeometry(this.geo_string.charAt(char_idx),         
+        {
+            font: this.geo_font, size: this.geo_size, height: this.geo_thickness, material: 0, 
+            bevelEnabled: false, bevelThickness: 0, bevelSize: 0, extrudeMaterial: 1
+        });
+        temp_geo.center();
+        temp_geo.rotateZ(-angle_increment*char_idx);
+        temp_geo.translate(radius*Math.sin(angle_increment*char_idx), radius*Math.cos(angle_increment*char_idx), 0);
+        this.circular_geometry.merge(temp_geo);
+    }
+
+
+    this.geometry = this.normal_geometry;
+
     //make material and mesh
     this.material = new THREE.MeshLambertMaterial({ color: this.mesh_color, wireframe: false });
     this.mesh = new THREE.Mesh(this.geometry, this.material);
@@ -63,6 +85,8 @@ TypeMesher.prototype.deleteAll = function()
     this.rotation.copy(this.mesh.rotation); //position and rotation are object so we need a deep copy not shallow copy
 
     delete this.geometry;
+    delete this.circular_geometry;
+    delete this.normal_geometry;
     // we don't need to make a new instance for material
     //delete this.material;
     delete this.mesh;
@@ -77,12 +101,35 @@ TypeMesher.prototype.deleteAll = function()
 TypeMesher.prototype.remakeAll = function () 
 {
     // make geometry
-    this.geometry = new THREE.TextGeometry(this.geo_string,
+    this.normal_geometry = new THREE.TextGeometry(this.geo_string,
         {
             font: this.geo_font, size: this.geo_size, height: this.geo_thickness, material: 0, 
             bevelEnabled: false, bevelThickness: 0, bevelSize: 0, extrudeMaterial: 1
         });
-    this.geometry.center(); // move the geometry to center
+    this.normal_geometry.center(); // move the geometry to center
+
+    this.circular_geometry = new THREE.Geometry();
+    var radius = 0.2*this.geo_string.length * this.geo_size;
+    var angle_increment = 2*Math.PI/this.geo_string.length;
+
+    for(var char_idx = 0; char_idx < this.geo_string.length; char_idx++) {
+        var temp_geo = new THREE.TextGeometry(this.geo_string.charAt(char_idx),         
+        {
+            font: this.geo_font, size: this.geo_size, height: this.geo_thickness, material: 0, 
+            bevelEnabled: false, bevelThickness: 0, bevelSize: 0, extrudeMaterial: 1
+        });
+        temp_geo.center();
+        temp_geo.rotateZ(-angle_increment*char_idx);
+        temp_geo.translate(radius*Math.sin(angle_increment*char_idx), radius*Math.cos(angle_increment*char_idx), 0);
+        this.circular_geometry.merge(temp_geo);
+    }
+
+    if( this.geo_type == "normal") {
+        this.geometry = this.normal_geometry;
+    }
+    else{
+        this.geometry = this.circular_geometry;
+    }
     
     //make material and mesh
     // we don't need to make a new instance for material
@@ -132,6 +179,12 @@ TypeMesher.prototype.changeThickness = function(thickness)
     this.remakeAll();
 }
 
+TypeMesher.prototype.changeWireWidth = function(wire_width)
+{
+    this.wire_width = wire_width;
+    this.mat_wire.linewidth = wire_width;
+}
+
 TypeMesher.prototype.changeTextColor = function(color)
 {
     this.mesh.material.color.setHex(color);
@@ -142,6 +195,31 @@ TypeMesher.prototype.changeWireframeColor = function(color)
     this.wire_mesh.material.color.setHex(color);
 }
 
+TypeMesher.prototype.changetoCircularType = function()
+{
+    this.deleteAll();
+
+    // var chat_arr = new Array();
+    // var string_length = this.geo_string.length;
+    // var radius = 10*string_length*this.geo_size;
+    // var angle_increment = 360/string_length;
+
+    // for(var string_idx = 0; string_idx < string_length; string_idx++)
+    // {
+        
+    // }
+    this.geo_type = "circular";
+    
+    this.remakeAll();
+}
+
+TypeMesher.prototype.changetoNormalType = function()
+{
+    this.deleteAll();
+
+    this.geo_type = "normal";
+    this.remakeAll();
+}
 
 //wireframe
 TypeMesher.prototype.setWireFrameVisibility = function(visible)

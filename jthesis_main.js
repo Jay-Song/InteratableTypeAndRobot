@@ -29,8 +29,10 @@ const params = {
     color: 0xFF0000,
     fontSize: 12,
     fontThickness: 10,
+    wireWidth: 10,
     wireframe: false,
-    multiple: false
+    multiple: false,
+    circular: false
 }
 const gui = new dat.GUI();
 
@@ -80,6 +82,21 @@ gui.add(params, "fontThickness", 10, 100, 1).onChange(function (value) {
     }
 });
 
+gui.add(params, "wireWidth", 1, 20, 1).onChange(function (value) {
+    scene.remove(type_mesher.mesh);
+    type_mesher.changeWireWidth(value);
+    scene.add(type_mesher.mesh);
+
+    for (var mesher_idx = 0; mesher_idx < arr_type_mesher.length; mesher_idx++) {
+        scene.remove(arr_type_mesher[mesher_idx].mesh);
+        arr_type_mesher[mesher_idx].changeWireWidth(value);
+        if (params.multiple == true) {
+            scene.add(arr_type_mesher[mesher_idx].mesh);
+        }
+    }
+});
+
+
 //GUI COLOR
 gui.addColor(params, "color").onFinishChange(function (value) {
     type_mesher.changeTextColor(value);
@@ -112,6 +129,35 @@ gui.add(params, "multiple").onChange(function (value){
     else {
         for (var mesher_idx = 0; mesher_idx < arr_type_mesher.length; mesher_idx++) {
             scene.remove(arr_type_mesher[mesher_idx].mesh);
+        }
+    }
+});
+
+gui.add(params, "circular").onChange( function (value){ 
+    if (value) {
+        scene.remove(type_mesher.mesh);
+        type_mesher.changetoCircularType();
+        scene.add(type_mesher.mesh);
+
+        for (var mesher_idx = 0; mesher_idx < arr_type_mesher.length; mesher_idx++) {
+            scene.remove(arr_type_mesher[mesher_idx].mesh);
+            arr_type_mesher[mesher_idx].changetoCircularType();
+            if (params.multiple == true) {
+                scene.add(arr_type_mesher[mesher_idx].mesh);
+            }
+        }
+    }
+    else {
+        scene.remove(type_mesher.mesh);
+        type_mesher.changetoNormalType();
+        scene.add(type_mesher.mesh);
+
+        for (var mesher_idx = 0; mesher_idx < arr_type_mesher.length; mesher_idx++) {
+            scene.remove(arr_type_mesher[mesher_idx].mesh);
+            arr_type_mesher[mesher_idx].changetoNormalType();
+            if (params.multiple == true) {
+                scene.add(arr_type_mesher[mesher_idx].mesh);
+            }
         }
     }
 });
